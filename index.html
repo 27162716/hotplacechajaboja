@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 CORTIS THEATER & PRACTICE ROOM MAP ⚡</title>
+    <style>
+        /* 하이퍼 키치 극장 커서 및 다크 사이언/옐로우 배경 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" style="font-size:24px"><text y="24">🎟️</text></svg>'), auto;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            font-family: 'Comic Sans MS', 'Malgun Gothic', sans-serif;
+            background: repeating-linear-gradient(
+                45deg,
+                #1a1a2e,
+                #1a1a2e 20px,
+                #16213e 20px,
+                #16213e 40px
+            ); /* 핑크 삭제 -> 딥 네이비&실버블루 스트라이프 패턴 */
+            overflow: hidden;
+        }
+
+        /* 메인 레이아웃 박스 */
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            background: radial-gradient(circle, rgba(0,255,255,0.15) 10%, transparent 11%);
+            background-size: 20px 20px;
+        }
+
+        /* 왼쪽: 극장 카테고리 및 검색 사이드바 */
+        .sidebar {
+            width: 420px;
+            height: 100%;
+            padding: 25px;
+            background-color: #00ffff; /* 쨍한 사이언 블루 */
+            border: 6px solid #000;
+            border-radius: 30px;
+            box-shadow: 12px 12px 0px #ffff00; /* 핑크 빼고 네온 옐로우 섀도우 */
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            margin-right: 20px;
+        }
+
+        /* 타이틀 */
+        .sidebar-title {
+            font-size: 22px;
+            font-weight: 900;
+            text-align: center;
+            color: #fff;
+            text-shadow: 3px 3px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+
+        /* 🎭 테마/카테고리 선택 존 (연습실 추가 완료) 🎭 */
+        .theater-zone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 20px;
+            padding: 12px;
+            background-color: #000; /* 블랙으로 시크하게 변경 */
+            border: 3px solid #000;
+            border-radius: 16px;
+            box-shadow: inset 3px 3px 0px rgba(0,0,0,0.5);
+        }
+
+        .theater-btn {
+            flex: 1 1 calc(33.33% - 4px);
+            padding: 10px 3px;
+            font-size: 12px;
+            font-weight: 900;
+            color: #fff;
+            background-color: #222;
+            border: 2px solid #000;
+            border-radius: 12px;
+            box-shadow: 2px 2px 0px #00ffff;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.1s;
+        }
+
+        .theater-btn:hover {
+            background-color: #ffff00;
+            color: #000;
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0px #fff;
+        }
+
+        /* 활성화된 카테고리 스타일 */
+        .theater-btn.active {
+            background-color: #ffff00;
+            color: #000;
+            box-shadow: inset 2px 2px 0px #000;
+            transform: translate(1px, 1px);
+        }
+
+        /* 검색창 스타일 */
+        .search-box {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px;
+            border: 3px solid #000;
+            border-radius: 16px 0 0 16px;
+            outline: none;
+            font-size: 14px;
+            font-weight: bold;
+            background-color: #fff;
+        }
+
+        .search-box button {
+            padding: 12px 18px;
+            background-color: #000; 
+            color: #ffff00;
+            border: 3px solid #000;
+            border-left: none;
+            border-radius: 0 16px 16px 0;
+            font-weight: 900;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+
+        .search-box button:hover {
+            background-color: #ffff00;
+            color: #000;
+        }
+
+        /* 결과 리스트 영역 */
+        .result-list {
+            flex: 1;
+            overflow-y: auto;
+            list-style: none;
+            padding-right: 5px;
+        }
+
+        .result-list::-webkit-scrollbar {
+            width: 10px;
+        }
+        .result-list::-webkit-scrollbar-thumb {
+            background: #ffff00;
+            border: 3px solid #000;
+            border-radius: 10px;
+        }
+
+        /* 개별 리스트 아이템 (정보 커스텀 레이아웃 추가) */
+        .result-item {
+            padding: 15px;
+            border: 3px solid #000;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            background-color: #ffffff;
+            box-shadow: 5px 5px 0px #000;
+            transition: all 0.2s;
+        }
+
+        .result-item:hover {
+            background-color: #e6ffff;
+            transform: rotate(-0.5deg) scale(1.01);
+            box-shadow: 7px 7px 0px #000;
+        }
+
+        .result-item h5 {
+            font-size: 15px;
+            color: #000;
+            font-weight: 900;
+            margin-bottom: 4px;
+        }
+
+        .result-item .address {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        /* ⭐ 새로 추가된 가격 및 티켓/대여 정보 명세창 */
+        .info-badge-zone {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 8px;
+            background-color: #f1f3f5;
+            border: 2px solid #000;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .badge-price {
+            color: #d9480f;
+            font-weight: 900;
+        }
+
+        .badge-show {
+            color: #0b7285;
+            font-weight: bold;
+        }
+
+        .booking-link {
+            display: inline-block;
+            margin-top: 4px;
+            font-size: 11px;
+            color: #000;
+            text-decoration: underline;
+            font-weight: 900;
+        }
+
+        /* 오른쪽: 지도 영역 */
+        .map-area {
+            flex: 1;
+            height: 100%;
+            border: 6px solid #000;
+            border-radius: 30px;
+            box-shadow: 12px 12px 0px #000;
+            overflow: hidden;
+        }
+
+        /* 팝업창 모달 - 블루 아우라 스타일 */
+        .cortis-popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0, 255, 255, 0.2),
+                rgba(0, 255, 255, 0.2) 10px,
+                rgba(0, 0, 0, 0.4) 10px,
+                rgba(0, 0, 0, 0.4) 20px
+            );
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cortis-popup-content {
+            background-color: #000; 
+            padding: 45px 30px;
+            border: 6px solid #ffff00;
+            border-radius: 40px;
+            text-align: center;
+            box-shadow: 18px 18px 0px #00ffff;
+            max-width: 480px;
+            word-break: keep-all;
+            animation: glitchPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.5);
+        }
+
+        @keyframes glitchPop {
+            0% { transform: scale(0.3) rotate(-10deg); }
+            70% { transform: scale(1.1) rotate(3deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .cortis-popup-content p {
+            font-size: 22px;
+            font-weight: 900;
+            color: #ffff00;
+            line-height: 1.6;
+            text-shadow: 2px 2px 0px #00ffff;
+        }
+
+        /* 마커 이모지 */
+        .star-marker {
+            font-size: 42px;
+            filter: drop-shadow(3px 3px 0px #000);
+            cursor: pointer;
+            animation: hyperBounce 0.5s infinite alternate cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes hyperBounce {
+            0% { transform: translateY(0) rotate(-5deg) scale(1); }
+            100% { transform: translateY(-18px) rotate(10deg) scale(1.2); }
+        }
+    </style>
+
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=6b81e8c8b63eea8d7223d957a49874fd&libraries=services&autoload=false"></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-title">⚡ STAGE & PRACTICE MAP ⚡</div>
+            
+            <div class="theater-zone" id="categoryZone">
+                <button class="theater-btn" onclick="selectCategory('영화관', this)">🍿 영화관</button>
+                <button class="theater-btn" onclick="selectCategory('대극장', this)">👑 대극장</button>
+                <button class="theater-btn" onclick="selectCategory('중극장', this)">🎪 중극장</button>
+                <button class="theater-btn" onclick="selectCategory('소극장', this)">🎭 소극장</button>
+                <button class="theater-btn" onclick="selectCategory('공연장', this)">✨ 공연장</button>
+                <button class="theater-btn" onclick="selectCategory('콘서트홀', this)">🎸 콘서트홀</button>
+                <button class="theater-btn" onclick="selectCategory('연습실', this)">🕺 연습실</button>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="keyword" placeholder="공연장이나 연습실 이름을 직접 쳐봐!">
+                <button onclick="searchPlaces()">GO!</button>
+            </div>
+            <ul id="placesList" class="result-list"></ul>
+        </div>
+
+        <div id="map" class="map-area"></div>
+    </div>
+
+    <div id="cortisPopup" class="cortis-popup-overlay">
+        <div class="cortis-popup-content">
+            <p>💥 조금만 기다려줘 팔랑귀 팔랑귀 BLUE BLUE 기다리기 기다리기 YELLOW YELLOW 💥</p>
+        </div>
+    </div>
+
+    <script>
+        let map;
+        let placeSearch;
+        let starOverlays = []; 
+        let currentLocationMarker; 
+        let currentTargetType = '극정'; // 현재 검색 모드 분기용 변수
+
+        kakao.maps.load(function () {
+            const mapContainer = document.getElementById('map'); 
+            const mapOption = {
+                center: new kakao.maps.LatLng(37.566826, 126.9786567), 
+                level: 5 
+            };
+
+            map = new kakao.maps.Map(mapContainer, mapOption);
+            placeSearch = new kakao.maps.services.Places();
+            getCurrentLocation();
+        });
+
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    const lat = position.coords.latitude;  
+                    const lon = position.coords.longitude; 
+                    const locPosition = new kakao.maps.LatLng(lat, lon);
+                    map.setCenter(locPosition); 
+                    displayCurrentLocationMarker(locPosition);
+                });
+            }
+        }
+
+        function displayCurrentLocationMarker(locPosition) {
+            if (currentLocationMarker) currentLocationMarker.setMap(null);
+            currentLocationMarker = new kakao.maps.Marker({
+                map: map,
+                position: locPosition
+            });
+        }
+
+        function selectCategory(categoryName, element) {
+            const buttons = document.querySelectorAll('.theater-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+
+            // 연습실 모드와 일반 극장 모드 상태 분기
+            currentTargetType = (categoryName === '연습실') ? '연습실' : '극장';
+
+            document.getElementById('keyword').value = categoryName;
+            searchPlaces();
+        }
+
+        function searchPlaces() {
+            const keyword = document.getElementById('keyword').value;
+            if (!keyword.replace(/^\s+|\s+$/g, '')) {
+                alert('🚨 카테고리를 선택하거나 키워드를 넣어줘! 🚨');
+                return;
+            }
+
+            clearPreviousSearch();
+            showCortisPopup();
+
+            setTimeout(function() {
+                placeSearch.keywordSearch(keyword, placesSearchCB);
+            }, 950);
+        }
+
+        function placesSearchCB(data, status, pagination) {
+            hideCortisPopup();
+            if (status === kakao.maps.services.Status.OK) {
+                displayPlaces(data);
+            } else {
+                alert('🕵️‍♀️ 검색 결과가 없거나 불러오지 못했어!');
+            }
+        }
+
+        // 결과 가공 및 동적 티켓/대여료 인포텍트 바인딩 함수
+        function displayPlaces(places) {
+            const listEl = document.getElementById('placesList');
+            const bounds = new kakao.maps.LatLngBounds(); 
+
+            for (let i = 0; i < places.length; i++) {
+                const placePosition = new kakao.maps.LatLng(places[i].y, places[i].x);
+                
+                const markerContent = document.createElement('div');
+                markerContent.className = 'star-marker';
+                // 연습실은 거울모양, 극장은 별모양 마커 분기
+                markerContent.innerHTML = (currentTargetType === '연습실') ? '🪞' : '⭐';
+
+                const starOverlay = new kakao.maps.CustomOverlay({
+                    position: placePosition,
+                    content: markerContent,
+                    yAnchor: 0.85
+                });
+
+                starOverlay.setMap(map);
+                starOverlays.push(starOverlay);
+                bounds.extend(placePosition);
+
+                // 장소 기반 가상의 실시간 데이터 가이드 구축
+                let infoHTML = '';
+                const encodedName = encodeURIComponent(places[i].place_name);
+
+                if (currentTargetType === '연습실') {
+                    infoHTML = `
+                        <div class="info-badge-zone">
+                            <span class="badge-price">💰 평균 대여료: 시간당 5,000원 ~ 15,000원 선</span>
+                            <span class="badge-show">🛠️ 보유 시설: 전면 거울, 바닥 댄스 플로어, 오디오 기본 완비</span>
+                            <a class="booking-link" href="https://search.naver.com/search.naver?query=${encodedName}+예약" target="_blank">🔗 스페이스클라우드/네이버 실시간 가격 조회하기</a>
+                        </div>
+                    `;
+                } else {
+                    infoHTML = `
+                        <div class="info-badge-zone">
+                            <span class="badge-price">🎫 티켓 가격: 전석 30,000원 ~ 150,000원 (종류별 상이)</span>
+                            <span class="badge-show">🎭 상영 정보: 시즌별 연극/뮤지컬 라인업 상시 변동</span>
+                            <a class="booking-link" href="https://search.naver.com/search.naver?query=${encodedName}+예매" target="_blank">🔗 인터파크/네이버 지금 진행 중인 공연 및 티켓값 보기</a>
+                        </div>
+                    `;
+                }
+
+                const itemEl = document.createElement('li');
+                itemEl.className = 'result-item';
+                itemEl.innerHTML = `
+                    <h5>📍 ${places[i].place_name}</h5>
+                    <p class="address">🌈 ${places[i].road_address_name ? places[i].road_address_name : places[i].address_name}</p>
+                    ${infoHTML}
+                `;
+
+                itemEl.onclick = function () {
+                    map.setCenter(placePosition);
+                    map.setLevel(3); 
+                };
+
+                listEl.appendChild(itemEl);
+            }
+            map.setBounds(bounds);
+        }
+
+        function clearPreviousSearch() {
+            for (let i = 0; i < starOverlays.length; i++) {
+                starOverlays[i].setMap(null);
+            }
+            starOverlays = [];
+            document.getElementById('placesList').innerHTML = '';
+        }
+
+        function showCortisPopup() { document.getElementById('cortisPopup').style.display = 'flex'; }
+        function hideCortisPopup() { document.getElementById('cortisPopup').style.display = 'none'; }
+    </script>
+</body>
+</html>
