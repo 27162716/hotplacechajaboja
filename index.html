@@ -45,7 +45,7 @@
             background-color: #00ffff; /* 쨍한 사이언 블루 */
             border: 6px solid #000;
             border-radius: 30px;
-            box-shadow: 12px 12px 0px #ffff00; /* 핑크 빼고 네온 옐로우 섀도우 */
+            box-shadow: 12px 12px 0px #ffff00; /* 네온 옐로우 섀도우 */
             display: flex;
             flex-direction: column;
             z-index: 10;
@@ -63,14 +63,14 @@
             letter-spacing: -1px;
         }
 
-        /* 🎭 테마/카테고리 선택 존 (연습실 추가 완료) 🎭 */
+        /* 🎭 테마/카테고리 선택 존 (연습실 포함) 🎭 */
         .theater-zone {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
             margin-bottom: 20px;
             padding: 12px;
-            background-color: #000; /* 블랙으로 시크하게 변경 */
+            background-color: #000; 
             border: 3px solid #000;
             border-radius: 16px;
             box-shadow: inset 3px 3px 0px rgba(0,0,0,0.5);
@@ -157,7 +157,7 @@
             border-radius: 10px;
         }
 
-        /* 개별 리스트 아이템 (정보 커스텀 레이아웃 추가) */
+        /* 개별 리스트 아이템 */
         .result-item {
             padding: 15px;
             border: 3px solid #000;
@@ -187,7 +187,7 @@
             margin-bottom: 8px;
         }
 
-        /* ⭐ 새로 추가된 가격 및 티켓/대여 정보 명세창 */
+        /* 가격 및 티켓/대여 정보 명세창 */
         .info-badge-zone {
             display: flex;
             flex-direction: column;
@@ -228,7 +228,7 @@
             overflow: hidden;
         }
 
-        /* 팝업창 모달 - 블루 아우라 스타일 */
+        /* 팝업창 모달 - 원조 띵언 싱크로율 100% 반영 */
         .cortis-popup-overlay {
             display: none;
             position: fixed;
@@ -252,7 +252,7 @@
         .cortis-popup-content {
             background-color: #000; 
             padding: 45px 30px;
-            border: 6px solid #ffff00;
+            border: 6px solid #00ff00; /* 그린 그린한 보더 라인 */
             border-radius: 40px;
             text-align: center;
             box-shadow: 18px 18px 0px #00ffff;
@@ -270,9 +270,9 @@
         .cortis-popup-content p {
             font-size: 22px;
             font-weight: 900;
-            color: #ffff00;
+            color: #00ff00; /* 네온 그린으로 강렬하게 변경 */
             line-height: 1.6;
-            text-shadow: 2px 2px 0px #00ffff;
+            text-shadow: 2px 2px 0px #000, -2px -2px 0px #00ffff;
         }
 
         /* 마커 이모지 */
@@ -319,7 +319,7 @@
 
     <div id="cortisPopup" class="cortis-popup-overlay">
         <div class="cortis-popup-content">
-            <p>💥 조금만 기다려줘 팔랑귀 팔랑귀 BLUE BLUE 기다리기 기다리기 YELLOW YELLOW 💥</p>
+            <p>💥 조금만 기다려줘 팔랑귀 팔랑귀 RED RED 기다리기 기다리기 GREEN GREEN 💥</p>
         </div>
     </div>
 
@@ -328,7 +328,7 @@
         let placeSearch;
         let starOverlays = []; 
         let currentLocationMarker; 
-        let currentTargetType = '극정'; // 현재 검색 모드 분기용 변수
+        let currentTargetType = '극장'; 
 
         kakao.maps.load(function () {
             const mapContainer = document.getElementById('map'); 
@@ -367,7 +367,6 @@
             buttons.forEach(btn => btn.classList.remove('active'));
             element.classList.add('active');
 
-            // 연습실 모드와 일반 극장 모드 상태 분기
             currentTargetType = (categoryName === '연습실') ? '연습실' : '극장';
 
             document.getElementById('keyword').value = categoryName;
@@ -398,7 +397,6 @@
             }
         }
 
-        // 결과 가공 및 동적 티켓/대여료 인포텍트 바인딩 함수
         function displayPlaces(places) {
             const listEl = document.getElementById('placesList');
             const bounds = new kakao.maps.LatLngBounds(); 
@@ -408,7 +406,6 @@
                 
                 const markerContent = document.createElement('div');
                 markerContent.className = 'star-marker';
-                // 연습실은 거울모양, 극장은 별모양 마커 분기
                 markerContent.innerHTML = (currentTargetType === '연습실') ? '🪞' : '⭐';
 
                 const starOverlay = new kakao.maps.CustomOverlay({
@@ -421,7 +418,6 @@
                 starOverlays.push(starOverlay);
                 bounds.extend(placePosition);
 
-                // 장소 기반 가상의 실시간 데이터 가이드 구축
                 let infoHTML = '';
                 const encodedName = encodeURIComponent(places[i].place_name);
 
@@ -429,48 +425,4 @@
                     infoHTML = `
                         <div class="info-badge-zone">
                             <span class="badge-price">💰 평균 대여료: 시간당 5,000원 ~ 15,000원 선</span>
-                            <span class="badge-show">🛠️ 보유 시설: 전면 거울, 바닥 댄스 플로어, 오디오 기본 완비</span>
-                            <a class="booking-link" href="https://search.naver.com/search.naver?query=${encodedName}+예약" target="_blank">🔗 스페이스클라우드/네이버 실시간 가격 조회하기</a>
-                        </div>
-                    `;
-                } else {
-                    infoHTML = `
-                        <div class="info-badge-zone">
-                            <span class="badge-price">🎫 티켓 가격: 전석 30,000원 ~ 150,000원 (종류별 상이)</span>
-                            <span class="badge-show">🎭 상영 정보: 시즌별 연극/뮤지컬 라인업 상시 변동</span>
-                            <a class="booking-link" href="https://search.naver.com/search.naver?query=${encodedName}+예매" target="_blank">🔗 인터파크/네이버 지금 진행 중인 공연 및 티켓값 보기</a>
-                        </div>
-                    `;
-                }
-
-                const itemEl = document.createElement('li');
-                itemEl.className = 'result-item';
-                itemEl.innerHTML = `
-                    <h5>📍 ${places[i].place_name}</h5>
-                    <p class="address">🌈 ${places[i].road_address_name ? places[i].road_address_name : places[i].address_name}</p>
-                    ${infoHTML}
-                `;
-
-                itemEl.onclick = function () {
-                    map.setCenter(placePosition);
-                    map.setLevel(3); 
-                };
-
-                listEl.appendChild(itemEl);
-            }
-            map.setBounds(bounds);
-        }
-
-        function clearPreviousSearch() {
-            for (let i = 0; i < starOverlays.length; i++) {
-                starOverlays[i].setMap(null);
-            }
-            starOverlays = [];
-            document.getElementById('placesList').innerHTML = '';
-        }
-
-        function showCortisPopup() { document.getElementById('cortisPopup').style.display = 'flex'; }
-        function hideCortisPopup() { document.getElementById('cortisPopup').style.display = 'none'; }
-    </script>
-</body>
-</html>
+                            <span class="badge-show">🛠️ 보유 시설: 전면 거울, 바닥 댄스
